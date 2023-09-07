@@ -1,0 +1,8 @@
+export const _1_WEEK = 1000 * 60 * 60 * 24 * 7;
+
+export const TOKEN_TYPES = Object.freeze({
+  FORGOT_PASSWORD: "FORGOT_PASSWORD",
+  VERIFY_EMAIL: "VERIFY_EMAIL",
+  USER_AUTH: "USER_AUTH",
+  DELETE_ACCOUNT: "DELETE_ACCOUNT",
+});
