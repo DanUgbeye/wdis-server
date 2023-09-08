@@ -30,7 +30,7 @@ export class AuthController {
     return ServerResponse.create(res).success("signup successful", response);
   }
 
-  /** logs in a user */
+  /** login a user */
   async login(req: Request<any, any, TUserLogin_RB, any>, res: Response) {
     let user: UserDocument;
     try {
@@ -45,6 +45,62 @@ export class AuthController {
       auth: { token, expiresIn: _1_WEEK },
     };
     return ServerResponse.create(res).success("login successful", response);
+  }
+
+  /** sign in with google a user */
+  async signInWithGoogle(
+    req: Request<any, any, TUserLogin_RB, any>,
+    res: Response
+  ) {
+    return ServerResponse.create(res).success("google sign in");
+  }
+
+  /** resends account verificatiion mail */
+  async resendAccountVerificationMail(
+    req: Request<any, any, TUserLogin_RB, any>,
+    res: Response
+  ) {
+    return ServerResponse.create(res).success("resend verification mail");
+  }
+
+  /** verify a user account */
+  async verifyAccount(
+    req: Request<any, any, TUserLogin_RB, any>,
+    res: Response
+  ) {
+    return ServerResponse.create(res).success("verify account");
+  }
+
+  /** send forgot password mail */
+  async sendForgotPasswordMail(
+    req: Request<any, any, TUserLogin_RB, any>,
+    res: Response
+  ) {
+    return ServerResponse.create(res).success("forgot password email");
+  }
+
+  /** change password using token */
+  async changePasswordWithToken(
+    req: Request<any, any, TUserLogin_RB, any>,
+    res: Response
+  ) {
+    return ServerResponse.create(res).success("change password with token");
+  }
+
+  /** change password */
+  async changePassword(
+    req: Request<any, any, TUserLogin_RB, any>,
+    res: Response
+  ) {
+    return ServerResponse.create(res).success("change password");
+  }
+
+  /**deletes a user account */
+  async deleteAccount(
+    req: Request<any, any, TUserLogin_RB, any>,
+    res: Response
+  ) {
+    return ServerResponse.create(res).success("delete user account");
   }
 }
 
