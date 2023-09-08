@@ -4,11 +4,12 @@ import {
   ServerException,
 } from "../../../globals/exceptions";
 import passwordUtility from "../../../globals/utils/password";
-import { TUserLogin, TUserSignup } from "../auth/auth.types";
+import { TUserLogin_RB, TUserSignup_RB } from "../auth/auth.types";
+import userHelpers from "./user.helpers";
 import userRepository from "./user.repository";
 
 export class UserModel {
-  async createUserFromCredentials(userData: TUserSignup) {
+  async createUserFromCredentials(userData: TUserSignup_RB) {
     try {
       const userExists = await userRepository.findByEmail(userData.email);
       if (userExists) {
@@ -21,8 +22,7 @@ export class UserModel {
       };
 
       let createdUser = await userRepository.create(data);
-      delete createdUser.password;
-      return createdUser;
+      return userHelpers.filter(createdUser);
     } catch (error: any) {
       if (error instanceof BaseException) {
         throw error;
@@ -31,7 +31,7 @@ export class UserModel {
     }
   }
 
-  async login(userData: TUserLogin) {
+  async login(userData: TUserLogin_RB) {
     try {
       const user = await userRepository.findByEmail(userData.email);
       if (!user) {
@@ -51,8 +51,7 @@ export class UserModel {
         throw new BadRequestException("incorrect credentials");
       }
 
-      delete user.password;
-      return user;
+      return userHelpers.filter(user);
     } catch (error: Error | BaseException | any) {
       if (error instanceof BaseException) {
         throw error;
