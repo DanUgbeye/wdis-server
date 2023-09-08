@@ -5,7 +5,16 @@ import { userLoginSchema, userSignupSchema } from "./auth.validation";
 
 const authRouter = express.Router();
 
-authRouter.post("/login", validateRequest(userLoginSchema), authController.login);
-authRouter.post("/signup", validateRequest(userSignupSchema), authController.signup);
+authRouter.post(
+  "/login",
+  validateRequest(userLoginSchema),
+  authController.login
+);
+
+authRouter.post(
+  "/signup",
+  validateRequest(userSignupSchema),
+  authController.signup
+);
 
 export default authRouter;

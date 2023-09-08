@@ -1,11 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { AppPermissions } from "./auth.types";
-import ServerResponse from "../../../globals/helpers/serverResponse";
 import { AuthenticationException } from "../../../globals/exceptions";
 import { authToken } from "../../../globals/utils/token";
 import { AuthTokenPayload } from "../../../globals/utils/token/token.types";
 import { UserDocument } from "../user/user.types";
 import userRepository from "../user/user.repository";
+import { AppPermissions } from "../permissions/permission.types";
 
 export class AuthMiddleware {
   async authenticateUser() {}
@@ -45,7 +44,7 @@ export class AuthMiddleware {
 
   async requirePermission(permission: AppPermissions) {}
 
-  async requireRole() {}
+  async requireRole(role: string) {}
 }
 
 const authMiddleware = new AuthMiddleware();

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { TUserLogin, TUserSignup } from "./auth.types";
+import { TUserLogin_RB, TUserSignup_RB } from "./auth.types";
 import ServerResponse from "../../../globals/helpers/serverResponse";
 import { UserDocument } from "../user/user.types";
 import userModel from "../user/user.model";
@@ -9,7 +9,7 @@ import { _1_WEEK } from "../../../globals/utils/token/token.constant";
 
 export class AuthController {
   /** logs in a user */
-  async login(req: Request<any, any, TUserLogin, any>, res: Response) {
+  async login(req: Request<any, any, TUserLogin_RB, any>, res: Response) {
     let user: UserDocument;
     try {
       user = await userModel.login(req.body);
@@ -26,7 +26,7 @@ export class AuthController {
   }
 
   /** creates a new user */
-  async signup(req: Request<any, any, TUserSignup, any>, res: Response) {
+  async signup(req: Request<any, any, TUserSignup_RB, any>, res: Response) {
     let createdUser: UserDocument;
 
     try {
@@ -39,7 +39,7 @@ export class AuthController {
       _id: createdUser._id,
       email: createdUser.email,
     });
-    
+
     const response = {
       user: createdUser,
       auth: { token, expiresIn: _1_WEEK },
