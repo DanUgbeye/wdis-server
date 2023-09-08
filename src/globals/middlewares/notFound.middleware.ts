@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import ServerResponse from "../helpers/serverResponse";
 import { NotFoundException } from "../exceptions";
 
 export default function notFoundHandler(
