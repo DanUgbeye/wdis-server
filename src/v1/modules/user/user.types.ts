@@ -11,6 +11,8 @@ export interface UserData {
   phoneNumber?: string;
   profileImage?: string;
   disabled: boolean;
+  verified: boolean;
+  setupComplete: boolean;
 }
 
 export interface UserDocument extends Document, UserData {}

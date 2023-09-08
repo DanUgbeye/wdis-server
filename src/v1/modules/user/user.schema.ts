@@ -36,6 +36,14 @@ const userSchema = new mongoose.Schema<UserDocument>(
       type: Boolean,
       default: false,
     },
+    verified: {
+      type: Boolean,
+      default: false,
+    },
+    setupComplete: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
