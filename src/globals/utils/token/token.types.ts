@@ -13,7 +13,7 @@ export type TokenOptions = {
   expiresIn?: number;
 };
 
-export interface IToken<T> {
+export interface ITokenUtility<T> {
   create(payload: T, options?: TokenOptions): string;
   verify(token: string): T;
 }

@@ -1,8 +1,12 @@
-export const _1_WEEK = 1000 * 60 * 60 * 24 * 7;
+/** 1 hour */
+export const ACCESS_TOKEN_EXPIRY = 1000 * 60 * 60;
+/** 1 week */
+export const REFRESH_TOKEN_EXPIRY = 1000 * 60 * 60 * 24 * 7;
 
 export const TOKEN_TYPES = Object.freeze({
+  ACCESS_TOKEN: "ACCESS_TOKEN",
+  REFRESH_TOKEN: "REFRESH_TOKEN",
   FORGOT_PASSWORD: "FORGOT_PASSWORD",
   VERIFY_EMAIL: "VERIFY_EMAIL",
-  USER_AUTH: "USER_AUTH",
   DELETE_ACCOUNT: "DELETE_ACCOUNT",
 });
