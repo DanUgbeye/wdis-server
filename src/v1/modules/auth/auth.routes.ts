@@ -27,6 +27,13 @@ authRouter.get(
   authController.signInWithGoogle
 );
 
+// generates a new access token
+authRouter.get(
+  "refresh-token",
+  authMiddleware.verifyRefreshToken,
+  authController.refreshAccessToken
+);
+
 // resend account verification email route
 authRouter.post(
   "/verify-email/resend",
@@ -35,7 +42,7 @@ authRouter.post(
 );
 
 // verify email route
-authRouter.post("/verify-email/:token", authController.verifyAccount);
+authRouter.get("/verify-email/:token", authController.verifyAccount);
 
 // request forgot password email route
 authRouter.post(

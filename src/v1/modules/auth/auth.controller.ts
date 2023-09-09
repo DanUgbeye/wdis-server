@@ -4,8 +4,8 @@ import ServerResponse from "../../../globals/helpers/serverResponse";
 import { UserDocument } from "../user/user.types";
 import userModel from "../user/user.model";
 import { BaseException } from "../../../globals/exceptions";
-import { authToken } from "../../../globals/utils/token";
-import { _1_WEEK } from "../../../globals/utils/token/token.constant";
+import { accessTokenUtility } from "../../../globals/utils/token";
+import { ACCESS_TOKEN_EXPIRY } from "../../../globals/utils/token/token.constant";
 
 export class AuthController {
   /** creates a new user */
@@ -18,14 +18,14 @@ export class AuthController {
       return ServerResponse.create(res).error(error);
     }
 
-    const token = authToken.create({
+    const token = accessTokenUtility.create({
       _id: createdUser._id,
       email: createdUser.email,
     });
 
     const response = {
       user: createdUser,
-      auth: { token, expiresIn: _1_WEEK },
+      auth: { token, expiresIn: ACCESS_TOKEN_EXPIRY },
     };
     return ServerResponse.create(res).success("signup successful", response);
   }
@@ -39,19 +39,21 @@ export class AuthController {
       return ServerResponse.create(res).error(error);
     }
 
-    const token = authToken.create({ _id: user._id, email: user.email });
+    const token = accessTokenUtility.create({ _id: user._id, email: user.email });
     const response = {
       user,
-      auth: { token, expiresIn: _1_WEEK },
+      auth: { token, expiresIn: ACCESS_TOKEN_EXPIRY },
     };
     return ServerResponse.create(res).success("login successful", response);
   }
 
   /** sign in with google a user */
-  async signInWithGoogle(
-    req: Request<any, any, any, any>,
-    res: Response
-  ) {
+  async signInWithGoogle(req: Request<any, any, any, any>, res: Response) {
+    return ServerResponse.create(res).success("google sign in");
+  }
+
+  /** generates new access token for user */
+  async refreshAccessToken(req: Request<any, any, any, any>, res: Response) {
     return ServerResponse.create(res).success("google sign in");
   }
 
@@ -64,10 +66,7 @@ export class AuthController {
   }
 
   /** verify a user account */
-  async verifyAccount(
-    req: Request<any, any, any, any>,
-    res: Response
-  ) {
+  async verifyAccount(req: Request<any, any, any, any>, res: Response) {
     return ServerResponse.create(res).success("verify account");
   }
 
@@ -88,18 +87,12 @@ export class AuthController {
   }
 
   /** change password */
-  async changePassword(
-    req: Request<any, any, any, any>,
-    res: Response
-  ) {
+  async changePassword(req: Request<any, any, any, any>, res: Response) {
     return ServerResponse.create(res).success("change password");
   }
 
   /**deletes a user account */
-  async deleteAccount(
-    req: Request<any, any, any, any>,
-    res: Response
-  ) {
+  async deleteAccount(req: Request<any, any, any, any>, res: Response) {
     return ServerResponse.create(res).success("delete user account");
   }
 }

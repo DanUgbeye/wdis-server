@@ -5,35 +5,35 @@ import validateRequest from "../../../globals/middlewares/validator.middleware";
 
 const userRouter = express.Router();
 
-// update password route
-userRouter.patch(
-  "/change-password",
-  // validateRequest(userSignupSchema),
-  authMiddleware.requireAuth,
-  userController.changePassword
-);
-
-// update password route
-userRouter.delete(
-  "/delete-account",
-  authMiddleware.requireAuth,
-  userController.deleteAccount
-);
-
 // get user data route
 userRouter.get(
   "/:id",
   // validateRequest(userSignupSchema),
-  authMiddleware.requireAuth,
+  authMiddleware.verifyAccessToken,
   userController.findById
+);
+
+// update password route
+userRouter.patch(
+  "/:id/change-password",
+  // validateRequest(userSignupSchema),
+  authMiddleware.verifyAccessToken,
+  userController.changePassword
 );
 
 // update user route
 userRouter.patch(
   "/:id",
   // validateRequest(userSignupSchema),
-  authMiddleware.requireAuth,
+  authMiddleware.verifyAccessToken,
   userController.update
+);
+
+// update password route
+userRouter.delete(
+  "/:id",
+  authMiddleware.verifyAccessToken,
+  userController.deleteAccount
 );
 
 export default userRouter;
