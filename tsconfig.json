@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2022",
+    "lib": ["ES2022"],
     "module": "CommonJS",
     "outDir": "./dist",
     "rootDir": "./src",
@@ -17,6 +18,6 @@
     "typeRoots": ["./node_module/@types", "./src/types"],
     "paths": {}
   },
-  "include": ["src/types/express/express.d.ts", ".src/**/*.ts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
 }
