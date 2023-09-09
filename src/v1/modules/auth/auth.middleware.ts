@@ -48,5 +48,4 @@ export class AuthMiddleware {
 }
 
 const authMiddleware = new AuthMiddleware();
-
 export default authMiddleware;

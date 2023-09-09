@@ -49,7 +49,7 @@ export class AuthController {
 
   /** sign in with google a user */
   async signInWithGoogle(
-    req: Request<any, any, TUserLogin_RB, any>,
+    req: Request<any, any, any, any>,
     res: Response
   ) {
     return ServerResponse.create(res).success("google sign in");
@@ -57,7 +57,7 @@ export class AuthController {
 
   /** resends account verificatiion mail */
   async resendAccountVerificationMail(
-    req: Request<any, any, TUserLogin_RB, any>,
+    req: Request<any, any, any, any>,
     res: Response
   ) {
     return ServerResponse.create(res).success("resend verification mail");
@@ -65,7 +65,7 @@ export class AuthController {
 
   /** verify a user account */
   async verifyAccount(
-    req: Request<any, any, TUserLogin_RB, any>,
+    req: Request<any, any, any, any>,
     res: Response
   ) {
     return ServerResponse.create(res).success("verify account");
@@ -73,7 +73,7 @@ export class AuthController {
 
   /** send forgot password mail */
   async sendForgotPasswordMail(
-    req: Request<any, any, TUserLogin_RB, any>,
+    req: Request<any, any, any, any>,
     res: Response
   ) {
     return ServerResponse.create(res).success("forgot password email");
@@ -81,7 +81,7 @@ export class AuthController {
 
   /** change password using token */
   async changePasswordWithToken(
-    req: Request<any, any, TUserLogin_RB, any>,
+    req: Request<any, any, any, any>,
     res: Response
   ) {
     return ServerResponse.create(res).success("change password with token");
@@ -89,7 +89,7 @@ export class AuthController {
 
   /** change password */
   async changePassword(
-    req: Request<any, any, TUserLogin_RB, any>,
+    req: Request<any, any, any, any>,
     res: Response
   ) {
     return ServerResponse.create(res).success("change password");
@@ -97,7 +97,7 @@ export class AuthController {
 
   /**deletes a user account */
   async deleteAccount(
-    req: Request<any, any, TUserLogin_RB, any>,
+    req: Request<any, any, any, any>,
     res: Response
   ) {
     return ServerResponse.create(res).success("delete user account");

@@ -51,19 +51,4 @@ authRouter.post(
   authController.changePasswordWithToken
 );
 
-// update password route
-authRouter.put(
-  "/change-password",
-  // validateRequest(userSignupSchema),
-  authMiddleware.requireAuth,
-  authController.changePassword
-);
-
-// update password route
-authRouter.put(
-  "/delete-account",
-  // validateRequest(userSignupSchema),
-  authController.deleteAccount
-);
-
 export default authRouter;
