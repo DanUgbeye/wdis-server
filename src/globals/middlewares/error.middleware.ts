@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import BaseException from "../exceptions/BaseException";
-import ServerResponse from "../helpers/serverResponse";
+import ApiResponse from "../helpers/apiResponse";
 import { ServerException } from "../exceptions";
 
 export default async function globalErrorMHandler(
@@ -12,5 +12,5 @@ export default async function globalErrorMHandler(
   // console.error(err);
   const error =
     err instanceof BaseException ? err : new ServerException(err.message);
-  ServerResponse.create(res).error(error);
+  ApiResponse.create(res).error(error);
 }

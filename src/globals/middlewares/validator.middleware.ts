@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { ValidationException } from "../exceptions";
-import { RequestValidationSchemas } from "../../types/validation.types";
+import { RequestValidationSchemas } from "../types/validation.types";
 import { ZodError } from "zod";
 import errorUtility from "../utils/error";
 
