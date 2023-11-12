@@ -15,7 +15,7 @@
     "declaration": true,
     "sourceMap": true,
     "baseUrl": "./",
-    "typeRoots": ["./node_module/@types", "./src/types"],
+    "typeRoots": ["./node_module/@types", "./src/globals/types"],
     "paths": {}
   },
   "include": ["src/**/*.ts"],

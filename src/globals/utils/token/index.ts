@@ -1,4 +1,4 @@
-import serverConfig from "../../config/app.config";
+import serverConfig from "../../config/server.config";
 import { AccessTokenUtility, RefreshTokenUtility } from "./token";
 
 const accessTokenUtility = new AccessTokenUtility(serverConfig.ACCESS_TOKEN_SECRET);
