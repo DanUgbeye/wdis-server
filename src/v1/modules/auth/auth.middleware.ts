@@ -1,8 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import { AuthenticationException } from "../../../globals/exceptions";
+import {
+  AuthenticationException,
+  AuthorizationException,
+} from "../../../globals/exceptions";
 import { accessTokenUtility } from "../../../globals/utils/token";
 import { AuthTokenPayload } from "../../../globals/utils/token/token.types";
-import { UserDocument } from "../user/user.types";
+import { UserDocument, UserRole } from "../user/user.types";
 import userRepository from "../user/user.repository";
 import { AppPermissions } from "../permissions/permission.types";
 
@@ -76,7 +79,21 @@ export class AuthMiddleware {
 
   async requirePermission(permission: AppPermissions) {}
 
-  async requireRole(role: string) {}
+  requireRole(role: UserRole) {
+    return function (req: Request, res: Response, next: NextFunction) {
+      const user = req.user as UserDocument | undefined;
+
+      if (!user) {
+        return next(new AuthorizationException("user not found"));
+      }
+
+      if (user.role !== role || user.role !== "admin") {
+        return next(new AuthorizationException());
+      }
+
+      next();
+    };
+  }
 }
 
 const authMiddleware = new AuthMiddleware();

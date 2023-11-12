@@ -9,11 +9,11 @@ export const userLoginSchema = {
 
 export const userSignupSchema = {
   body: z.object({
-    fullname: z.string().min(22, "fullname must be at least 2 characters"),
+    fullname: z.string().min(2, "fullname must be at least 2 characters"),
     email: z.string().email("Invalid email format"),
     password: z.string().min(8, "Password must be at least 8 characters long"),
     phoneNumber: z.string(),
-    dob: z.date(),
+    dob: z.coerce.date(),
     sex: z.string(),
   }),
 };
