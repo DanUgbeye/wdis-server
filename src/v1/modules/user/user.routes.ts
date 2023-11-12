@@ -1,39 +1,63 @@
-import express from "express";
+import express, { Router } from "express";
 import userController from "./user.controller";
 import authMiddleware from "../auth/auth.middleware";
 import validateRequest from "../../../globals/middlewares/validator.middleware";
+import { RouterInterface } from "src/globals/types/router.types";
 
-const userRouter = express.Router();
+export default class UserRouter implements RouterInterface {
+  static instance: UserRouter | null = null;
+  public router: Router;
+  public BASE_PATH = "/user" as const;
 
-// get user data route
-userRouter.get(
-  "/:id",
-  // validateRequest(userSignupSchema),
-  authMiddleware.verifyAccessToken,
-  userController.findById
-);
+  constructor() {
+    if (UserRouter.instance) {
+      throw new Error("Bin Instance already exists");
+    }
 
-// update password route
-userRouter.patch(
-  "/:id/change-password",
-  // validateRequest(userSignupSchema),
-  authMiddleware.verifyAccessToken,
-  userController.changePassword
-);
+    this.router = Router();
+    this.registerRoutes();
+  }
 
-// update user route
-userRouter.patch(
-  "/:id",
-  // validateRequest(userSignupSchema),
-  authMiddleware.verifyAccessToken,
-  userController.update
-);
+  registerRoutes() {
+    // get user data route
+    this.router.get(
+      "/:id",
+      // validateRequest(),
+      authMiddleware.verifyAccessToken,
+      userController.findById
+    );
 
-// update password route
-userRouter.delete(
-  "/:id",
-  authMiddleware.verifyAccessToken,
-  userController.deleteAccount
-);
+    // update password route
+    this.router.patch(
+      "/:id/change-password",
+      // validateRequest(),
+      authMiddleware.verifyAccessToken,
+      userController.changePassword
+    );
 
-export default userRouter;
+    // update user route
+    this.router.patch(
+      "/:id",
+      // validateRequest(),
+      authMiddleware.verifyAccessToken,
+      userController.update
+    );
+
+    // update password route
+    this.router.delete(
+      "/:id",
+      authMiddleware.verifyAccessToken,
+      userController.deleteAccount
+    );
+  }
+
+  /** single instance of UserRouter */
+  static bootstrap() {
+    if (UserRouter.instance) {
+      return UserRouter.instance;
+    }
+
+    UserRouter.instance = new UserRouter();
+    return UserRouter.instance;
+  }
+}

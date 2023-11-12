@@ -34,7 +34,7 @@ export class UserModel {
   async login(userData: TUserLogin_RB) {
     try {
       const user = await userRepository.findByEmail(userData.email);
-      if (!user) {
+      if (!user || user.role !== "user") {
         throw new BadRequestException("incorrect credentials");
       }
 
@@ -44,6 +44,35 @@ export class UserModel {
 
       let passwordMatch = await passwordUtility.compare(
         userData.password,
+        user.password
+      );
+
+      if (!passwordMatch) {
+        throw new BadRequestException("incorrect credentials");
+      }
+
+      return userHelpers.filter(user);
+    } catch (error: Error | BaseException | any) {
+      if (error instanceof BaseException) {
+        throw error;
+      }
+      throw new ServerException(error.message);
+    }
+  }
+
+  async adminLogin(userCredentials: TUserLogin_RB) {
+    try {
+      const user = await userRepository.findByEmail(userCredentials.email);
+      if (!user || user.role !== "admin") {
+        throw new BadRequestException("incorrect credentials");
+      }
+
+      if (!user.password) {
+        throw new BadRequestException("incorrect login method selected");
+      }
+
+      let passwordMatch = await passwordUtility.compare(
+        userCredentials.password,
         user.password
       );
 
