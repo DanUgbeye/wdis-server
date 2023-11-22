@@ -45,9 +45,10 @@ export class AuthController {
       email: user.email,
       role: user.role || USER_ROLES.DISPOSER,
     });
+
     const response = {
       user,
-      auth: { token, expiresIn: ACCESS_TOKEN_EXPIRY },
+      auth: { token, expiresIn: ACCESS_TOKEN_EXPIRY * 1000 },
     };
     return ApiResponse.create(res).success("login successful", response);
   }
@@ -66,9 +67,10 @@ export class AuthController {
       email: user.email,
       role: user.role || USER_ROLES.USER,
     });
+    
     const response = {
       user,
-      auth: { token, expiresIn: ACCESS_TOKEN_EXPIRY },
+      auth: { token, expiresIn: ACCESS_TOKEN_EXPIRY * 1000 },
     };
     return ApiResponse.create(res).success("login successful", response);
   }
