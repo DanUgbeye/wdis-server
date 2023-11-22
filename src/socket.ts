@@ -2,7 +2,7 @@ import { Server } from "socket.io";
 import http from "http";
 import app from "./app";
 import serverConfig from "./globals/config/server.config";
-import { UserDocument } from "./v1/modules/user/user.types";
+import { USER_ROLES, UserDocument } from "./v1/modules/user/user.types";
 import userRepository from "./v1/modules/user/user.repository";
 
 const SOCKET_EVENTS = {
@@ -10,7 +10,7 @@ const SOCKET_EVENTS = {
   BIN_REPORTS: "BIN.NUM_REPORTS",
   BIN_DISPOSAL: "BIN.ON_DISPOSAL",
   BIN_EMPTY: "BIN.ON_EMPTY",
-  ADMIN_LOGIN: "ADMIN_LOGIN",
+  DISPOSER_LOGIN: "DISPOSER_LOGIN",
   USER_LOGIN: "USER_LOGIN",
   DISCONNECT: "disconnect",
 } as const;
@@ -24,32 +24,43 @@ const io = new Server(server, {
   },
 });
 
-const AdminStore = new Map<string, string>();
+const DisposerStore = new Map<string, string>();
 const UserStore = new Map<string, string>();
 const ReportStore = new Map<string, string[]>();
 
 io.on("connection", (socket) => {
-  // admin login
-  socket.on(SOCKET_EVENTS.ADMIN_LOGIN, async (adminId: string) => {
+  // disposer login
+  socket.on(SOCKET_EVENTS.DISPOSER_LOGIN, async (disposerId: string) => {
     let user: UserDocument | null;
     try {
-      user = await userRepository.findById(adminId);
-      if (!user || user.role !== "admin") {
+      user = await userRepository.findById(disposerId);
+      if (!user || user.role !== USER_ROLES.DISPOSER) {
         socket.disconnect();
       }
     } catch (err) {
       socket.disconnect();
     }
 
-    AdminStore.set(adminId, socket.id);
+    DisposerStore.set(disposerId, socket.id);
+
+    // send report status of all bins to disposer
+    Array.from(ReportStore.keys()).forEach((binId) => {
+      const totalReports = ReportStore.get(binId)?.length || 0;
+
+      Array.from(DisposerStore.values()).forEach((socketId) => {
+        socket
+          .to(socketId)
+          .emit(SOCKET_EVENTS.BIN_REPORTS, { binId, totalReports });
+      });
+    });
   });
 
-  // student login
+  // user login
   socket.on(SOCKET_EVENTS.USER_LOGIN, (userId: string) => {
     UserStore.set(userId, socket.id);
   });
 
-  // stdents reporting bin as full
+  // user reporting bin as full
   socket.on(
     SOCKET_EVENTS.REPORT_BIN_FULL,
     async (userId: string, binId: string) => {
@@ -59,13 +70,17 @@ io.on("connection", (socket) => {
 
       let totalReports: number = 0;
 
+      // if no previous reports for bin
       if (!ReportStore.has(binId)) {
         let reporters: string[] = [];
         reporters.push(userId);
         ReportStore.set(binId, reporters);
         ++totalReports;
       } else {
+        // if previous reports for bin
         let reporters = ReportStore.get(binId)!;
+
+        // if user has already reported bin
         if (!reporters.includes(userId)) {
           reporters.push(userId);
         } else {
@@ -75,7 +90,8 @@ io.on("connection", (socket) => {
         totalReports = reporters.length;
       }
 
-      Array.from(UserStore.values()).forEach((socketId) => {
+      // alert disposer
+      Array.from(DisposerStore.values()).forEach((socketId) => {
         socket
           .to(socketId)
           .emit(SOCKET_EVENTS.BIN_REPORTS, { binId, totalReports });
@@ -83,11 +99,11 @@ io.on("connection", (socket) => {
     }
   );
 
-  // admin marking bin for disposal
+  // disposer marking bin for disposal
   socket.on(
     SOCKET_EVENTS.BIN_DISPOSAL,
-    async (adminId: string, binId: string) => {
-      if (!AdminStore.has(adminId)) {
+    async (disposerId: string, binId: string) => {
+      if (!DisposerStore.has(disposerId)) {
         socket.disconnect();
       }
 
@@ -97,9 +113,9 @@ io.on("connection", (socket) => {
     }
   );
 
-  // admin marking bin as empty
-  socket.on(SOCKET_EVENTS.BIN_EMPTY, async (adminId: string, binId: string) => {
-    if (!AdminStore.has(adminId)) {
+  // disposer marking bin as empty
+  socket.on(SOCKET_EVENTS.BIN_EMPTY, async (userId: string, binId: string) => {
+    if (!DisposerStore.has(userId)) {
       socket.disconnect();
     }
 
@@ -117,8 +133,12 @@ io.on("connection", (socket) => {
       UserStore.delete(userId);
     }
 
-    if (AdminStore.has(userId)) {
-      AdminStore.delete(userId);
+    if (DisposerStore.has(userId)) {
+      DisposerStore.delete(userId);
+    }
+
+    if (DisposerStore.has(userId)) {
+      DisposerStore.delete(userId);
     }
   });
 });

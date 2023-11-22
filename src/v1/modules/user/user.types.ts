@@ -1,6 +1,12 @@
 import { Document } from "mongoose";
 
-export type UserRole = "user" | "admin";
+export type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES];
+
+export const USER_ROLES = {
+  USER: "user",
+  ADMIN: "admin",
+  DISPOSER: "disposer",
+} as const;
 
 export interface UserData {
   email: string;

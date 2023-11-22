@@ -7,6 +7,7 @@ import passwordUtility from "../../../globals/utils/password";
 import { TUserLogin_RB, TUserSignup_RB } from "../auth/auth.types";
 import userHelpers from "./user.helpers";
 import userRepository from "./user.repository";
+import { USER_ROLES } from "./user.types";
 
 export class UserModel {
   async createUserFromCredentials(userData: TUserSignup_RB) {
@@ -31,10 +32,12 @@ export class UserModel {
     }
   }
 
-  async login(userData: TUserLogin_RB) {
+  async login(
+    userData: TUserLogin_RB,
+  ) {
     try {
       const user = await userRepository.findByEmail(userData.email);
-      if (!user || user.role !== "user") {
+      if (!user || user.role !== USER_ROLES.USER) {
         throw new BadRequestException("incorrect credentials");
       }
 
@@ -60,10 +63,10 @@ export class UserModel {
     }
   }
 
-  async adminLogin(userCredentials: TUserLogin_RB) {
+  async disposerLogin(userCredentials: TUserLogin_RB) {
     try {
       const user = await userRepository.findByEmail(userCredentials.email);
-      if (!user || user.role !== "admin") {
+      if (!user || user.role !== USER_ROLES.DISPOSER) {
         throw new BadRequestException("incorrect credentials");
       }
 

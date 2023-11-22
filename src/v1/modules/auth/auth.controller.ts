@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { TUserLogin_RB, TUserSignup_RB } from "./auth.types";
 import ApiResponse from "../../../globals/helpers/apiResponse";
-import { UserDocument } from "../user/user.types";
+import { USER_ROLES, UserDocument } from "../user/user.types";
 import userModel from "../user/user.model";
 import { BaseException } from "../../../globals/exceptions";
 import { accessTokenUtility } from "../../../globals/utils/token";
@@ -21,7 +21,7 @@ export class AuthController {
     const token = accessTokenUtility.create({
       _id: createdUser._id,
       email: createdUser.email,
-      role: createdUser.role || "user",
+      role: createdUser.role || USER_ROLES.USER,
     });
 
     const response = {
@@ -31,11 +31,11 @@ export class AuthController {
     return ApiResponse.create(res).success("signup successful", response);
   }
 
-  /** login an admin */
-  async adminLogin(req: Request<any, any, TUserLogin_RB, any>, res: Response) {
+  /** login an disposer */
+  async disposerLogin(req: Request<any, any, TUserLogin_RB, any>, res: Response) {
     let user: UserDocument;
     try {
-      user = await userModel.adminLogin(req.body);
+      user = await userModel.disposerLogin(req.body);
     } catch (error: BaseException | Error | any) {
       return ApiResponse.create(res).error(error);
     }
@@ -43,7 +43,7 @@ export class AuthController {
     const token = accessTokenUtility.create({
       _id: user._id,
       email: user.email,
-      role: user.role || "admin",
+      role: user.role || USER_ROLES.DISPOSER,
     });
     const response = {
       user,
@@ -64,7 +64,7 @@ export class AuthController {
     const token = accessTokenUtility.create({
       _id: user._id,
       email: user.email,
-      role: user.role || "user",
+      role: user.role || USER_ROLES.USER,
     });
     const response = {
       user,

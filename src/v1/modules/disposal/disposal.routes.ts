@@ -3,6 +3,7 @@ import disposalController from "./disposal.controller";
 import authMiddleware from "../auth/auth.middleware";
 import validateRequest from "../../../globals/middlewares/validator.middleware";
 import { RouterInterface } from "src/globals/types/router.types";
+import { USER_ROLES } from "../user/user.types";
 
 export default class DisposalRouter implements RouterInterface {
   private static instance: DisposalRouter | null = null;
@@ -30,7 +31,7 @@ export default class DisposalRouter implements RouterInterface {
       "/:id",
       // validateRequest(),
       authMiddleware.verifyAccessToken,
-      authMiddleware.requireRole("admin"),
+      authMiddleware.requireRole(USER_ROLES.DISPOSER),
       disposalController.update
     );
 
@@ -38,7 +39,7 @@ export default class DisposalRouter implements RouterInterface {
     this.router.delete(
       "/:id",
       authMiddleware.verifyAccessToken,
-      authMiddleware.requireRole("admin"),
+      authMiddleware.requireRole(USER_ROLES.DISPOSER),
       disposalController.delete
     );
   }

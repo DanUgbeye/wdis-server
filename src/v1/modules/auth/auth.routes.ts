@@ -27,11 +27,11 @@ export default class AuthRouter implements RouterInterface {
       authController.login
     );
 
-    // admin login route
+    // disposer login route
     this.router.post(
-      "/admin/login",
+      "/disposer/login",
       validateRequest(userLoginSchema),
-      authController.adminLogin
+      authController.disposerLogin
     );
 
     // signup route

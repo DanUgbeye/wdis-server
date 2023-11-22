@@ -5,7 +5,7 @@ import {
 } from "../../../globals/exceptions";
 import { accessTokenUtility } from "../../../globals/utils/token";
 import { AuthTokenPayload } from "../../../globals/utils/token/token.types";
-import { UserDocument, UserRole } from "../user/user.types";
+import { USER_ROLES, UserDocument, UserRole } from "../user/user.types";
 import userRepository from "../user/user.repository";
 import { AppPermissions } from "../permissions/permission.types";
 
@@ -87,7 +87,7 @@ export class AuthMiddleware {
         return next(new AuthorizationException("user not found"));
       }
 
-      if (user.role !== role || user.role !== "admin") {
+      if (user.role !== role && user.role !== USER_ROLES.ADMIN) {
         return next(new AuthorizationException());
       }
 

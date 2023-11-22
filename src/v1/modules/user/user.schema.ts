@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { UserDocument } from "./user.types";
+import { USER_ROLES, UserDocument } from "./user.types";
 
 const userSchema = new mongoose.Schema<UserDocument>(
   {
@@ -46,8 +46,8 @@ const userSchema = new mongoose.Schema<UserDocument>(
     },
     role: {
       type: String,
-      default: "user",
-      enum: ["user", "admin"],
+      default: USER_ROLES.USER,
+      enum: [USER_ROLES.USER, USER_ROLES.DISPOSER, USER_ROLES.ADMIN],
     },
   },
   {

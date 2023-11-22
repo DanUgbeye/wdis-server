@@ -3,6 +3,7 @@ import binController from "./bin.controller";
 import authMiddleware from "../auth/auth.middleware";
 import validateRequest from "../../../globals/middlewares/validator.middleware";
 import { RouterInterface } from "src/globals/types/router.types";
+import { USER_ROLES } from "../user/user.types";
 
 export default class BinRouter implements RouterInterface {
   private static instance: BinRouter | null = null;
@@ -22,12 +23,12 @@ export default class BinRouter implements RouterInterface {
     // get all bins route
     this.router.get("/", binController.findAll);
 
-    // get all bins route
+    // create bins route
     this.router.post(
       "/",
       // validateRequest(),
       authMiddleware.verifyAccessToken,
-      authMiddleware.requireRole("admin"),
+      authMiddleware.requireRole(USER_ROLES.DISPOSER),
       binController.create
     );
 
@@ -39,7 +40,7 @@ export default class BinRouter implements RouterInterface {
       "/:id",
       // validateRequest(),
       authMiddleware.verifyAccessToken,
-      authMiddleware.requireRole("admin"),
+      authMiddleware.requireRole(USER_ROLES.DISPOSER),
       binController.update
     );
 
@@ -47,34 +48,34 @@ export default class BinRouter implements RouterInterface {
     this.router.delete(
       "/:id",
       authMiddleware.verifyAccessToken,
-      authMiddleware.requireRole("admin"),
+      authMiddleware.requireRole(USER_ROLES.DISPOSER),
       binController.delete
     );
 
-    // update bin status route
+    // mark bin status as full route
     this.router.patch(
       "/:id/status/full",
       // validateRequest(),
       authMiddleware.verifyAccessToken,
-      authMiddleware.requireRole("admin"),
+      authMiddleware.requireRole(USER_ROLES.DISPOSER),
       binController.markAsFull
     );
 
-    // update bin status route
+    // mark bin status as empty route
     this.router.patch(
       "/:id/status/empty",
       // validateRequest(),
       authMiddleware.verifyAccessToken,
-      authMiddleware.requireRole("admin"),
+      authMiddleware.requireRole(USER_ROLES.DISPOSER),
       binController.markAsEmpty
     );
 
-    // update bin status route
+    // mark bin status as full as ongoing route
     this.router.patch(
       "/:id/status/ongoing",
       // validateRequest(),
       authMiddleware.verifyAccessToken,
-      authMiddleware.requireRole("admin"),
+      authMiddleware.requireRole(USER_ROLES.DISPOSER),
       binController.markAsOngoing
     );
 
