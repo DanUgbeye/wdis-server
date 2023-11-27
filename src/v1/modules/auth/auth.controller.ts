@@ -26,13 +26,16 @@ export class AuthController {
 
     const response = {
       user: createdUser,
-      auth: { token, expiresIn: ACCESS_TOKEN_EXPIRY },
+      auth: { token, expiresIn: ACCESS_TOKEN_EXPIRY + Date.now() },
     };
     return ApiResponse.create(res).success("signup successful", response);
   }
 
   /** login an disposer */
-  async disposerLogin(req: Request<any, any, TUserLogin_RB, any>, res: Response) {
+  async disposerLogin(
+    req: Request<any, any, TUserLogin_RB, any>,
+    res: Response
+  ) {
     let user: UserDocument;
     try {
       user = await userModel.disposerLogin(req.body);
@@ -48,7 +51,7 @@ export class AuthController {
 
     const response = {
       user,
-      auth: { token, expiresIn: ACCESS_TOKEN_EXPIRY * 1000 },
+      auth: { token, expiresIn: ACCESS_TOKEN_EXPIRY + Date.now() },
     };
     return ApiResponse.create(res).success("login successful", response);
   }
@@ -67,10 +70,10 @@ export class AuthController {
       email: user.email,
       role: user.role || USER_ROLES.USER,
     });
-    
+
     const response = {
       user,
-      auth: { token, expiresIn: ACCESS_TOKEN_EXPIRY * 1000 },
+      auth: { token, expiresIn: ACCESS_TOKEN_EXPIRY + Date.now() },
     };
     return ApiResponse.create(res).success("login successful", response);
   }

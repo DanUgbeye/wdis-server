@@ -16,13 +16,6 @@ const userSchema = new mongoose.Schema<UserDocument>(
       required: true,
       type: String,
     },
-    dob: {
-      required: true,
-      type: Date,
-    },
-    address: {
-      type: String,
-    },
     phoneNumber: {
       type: String,
     },

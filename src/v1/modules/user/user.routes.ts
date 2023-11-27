@@ -21,6 +21,14 @@ export default class UserRouter implements RouterInterface {
   registerRoutes() {
     // get user data route
     this.router.get(
+      "/profile",
+      // validateRequest(),
+      authMiddleware.verifyAccessToken,
+      userController.getProfile
+    );
+
+    // get user data route
+    this.router.get(
       "/:id",
       // validateRequest(),
       authMiddleware.verifyAccessToken,

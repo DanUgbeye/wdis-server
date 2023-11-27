@@ -3,6 +3,10 @@ import { BIN_STATUS, BinDocument } from "./bin.types";
 
 const binSchema = new mongoose.Schema<BinDocument>(
   {
+    name: {
+      required: true,
+      type: String,
+    },
     location: {
       required: true,
       type: String,

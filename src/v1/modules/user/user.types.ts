@@ -14,8 +14,6 @@ export interface UserData {
   password?: string;
   googleId?: string;
   sex: string;
-  dob: Date;
-  address?: string;
   phoneNumber?: string;
   profileImage?: string;
   disabled: boolean;

@@ -9,6 +9,7 @@ export const BIN_STATUS = {
 } as const;
 
 export interface BinData {
+  name: string;
   location: string;
   status: BinStatus;
 }
