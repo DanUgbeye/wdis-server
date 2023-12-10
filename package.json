@@ -7,6 +7,7 @@
     "build": "tsc",
     "start": "rm -rf dist/ && tsc --project . && node dist/index.js",
     "dev": "nodemon .",
+    "typecheck": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
