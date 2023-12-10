@@ -1,12 +1,30 @@
 import express from "express";
-import authRouter from "./modules/auth/auth.routes";
+import AuthRouter from "./modules/auth/auth.routes";
+import UserRouter from "./modules/user/user.routes";
+import BinRouter from "./modules/bin/bin.routes";
+import { RouterInterface } from "src/globals/types/router.types";
+import AppRouter from "./modules/app/app.routes";
 
 const apiV1Routes = express.Router();
+const authRouter: RouterInterface = AuthRouter.bootstrap();
+const appRouter: RouterInterface = AppRouter.bootstrap();
+const userRouter: RouterInterface = UserRouter.bootstrap();
+const binRouter: RouterInterface = BinRouter.bootstrap();
 
 apiV1Routes.get("/", (req, res) => {
   res.send(`⚡ API V1 up and running ⚡`);
 });
 
-apiV1Routes.use("/auth", authRouter)
+// register auth routes
+apiV1Routes.use(authRouter.BASE_PATH, authRouter.router);
+
+// register app routes
+apiV1Routes.use(appRouter.BASE_PATH, appRouter.router);
+
+// register user routes
+apiV1Routes.use(userRouter.BASE_PATH, userRouter.router);
+
+// register bin routes
+apiV1Routes.use(binRouter.BASE_PATH, binRouter.router);
 
 export default apiV1Routes;

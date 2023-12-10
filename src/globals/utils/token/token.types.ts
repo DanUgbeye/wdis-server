@@ -1,3 +1,4 @@
+import { UserRole } from "src/v1/modules/user/user.types";
 import { TOKEN_TYPES } from "./token.constant";
 
 export type TokenType = keyof typeof TOKEN_TYPES;
@@ -13,12 +14,13 @@ export type TokenOptions = {
   expiresIn?: number;
 };
 
-export interface IToken<T> {
+export interface ITokenUtility<T> {
   create(payload: T, options?: TokenOptions): string;
   verify(token: string): T;
 }
 
 export interface AuthTokenPayload {
-  email: string;
   _id: string;
+  email: string;
+  role: UserRole;
 }

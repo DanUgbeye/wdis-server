@@ -1,6 +1,7 @@
-import serverConfig from "../../config/app.config";
-import { AuthToken } from "./auth.token";
+import serverConfig from "../../config/server.config";
+import { AccessTokenUtility, RefreshTokenUtility } from "./token";
 
-const authToken = new AuthToken(serverConfig.AUTH_TOKEN_SECRET);
+const accessTokenUtility = new AccessTokenUtility(serverConfig.ACCESS_TOKEN_SECRET);
+const refreshTokenUtility = new RefreshTokenUtility(serverConfig.REFRESH_TOKEN_SECRET);
 
-export { authToken };
+export { accessTokenUtility, refreshTokenUtility };

@@ -1,11 +1,11 @@
 import { Response } from "express";
 import { BaseException } from "../exceptions";
 
-export default class ServerResponse {
+export default class ApiResponse {
   constructor(private readonly res: Response) {}
 
   static create(res: Response) {
-    return new ServerResponse(res);
+    return new ApiResponse(res);
   }
 
   success(message: string): void;
@@ -18,12 +18,13 @@ export default class ServerResponse {
     let message: string = "";
 
     switch (args.length) {
-      case 1:
+      case 1: {
         message = args[0];
         code = 200;
         break;
+      }
 
-      case 2:
+      case 2: {
         message = args[0];
         if (typeof args[1] === "number") {
           code = args[1];
@@ -31,11 +32,13 @@ export default class ServerResponse {
           data = args[1];
         }
         break;
+      }
 
-      default:
+      default: {
         message = args[0];
         data = args[1];
         code = args[2];
+      }
     }
 
     this.res.status(code).json({
@@ -48,6 +51,7 @@ export default class ServerResponse {
 
   error(error: BaseException): void;
   error(error: Error): void;
+  error(message: string): void;
   error(message: string, code: number): void;
   error(...args: any[]): void {
     let errorObject: BaseException;
@@ -56,9 +60,11 @@ export default class ServerResponse {
       case 1: {
         if (args[0] instanceof BaseException) {
           errorObject = args[0];
-        } else {
+        } else if (args[0] instanceof Error) {
           let err: Error = args[0];
           errorObject = new BaseException(err.message);
+        } else {
+          errorObject = new BaseException(args[0], 500);
         }
         break;
       }

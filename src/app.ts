@@ -4,8 +4,8 @@ import express from "express";
 import Helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
-import globalErrorMiddleware from "./globals/middlewares/error.middleware";
-import notFoundMiddleware from "./globals/middlewares/notFound.middleware";
+import globalErrorMHandler from "./globals/middlewares/error.middleware";
+import notFoundHandler from "./globals/middlewares/notFound.middleware";
 import ServerRoutes from "./routes";
 
 const app = express();
@@ -19,9 +19,9 @@ app.use(morgan("dev"));
 app.use(ServerRoutes);
 
 // add not found middleware
-app.use(notFoundMiddleware);
+app.use(notFoundHandler);
 
 // add error middleware
-app.use(globalErrorMiddleware);
+app.use(globalErrorMHandler);
 
 export default app;

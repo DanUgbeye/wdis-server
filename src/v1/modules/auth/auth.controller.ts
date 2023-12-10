@@ -1,50 +1,130 @@
 import { Request, Response } from "express";
-import { TUserLogin, TUserSignup } from "./auth.types";
-import ServerResponse from "../../../globals/helpers/serverResponse";
-import { UserDocument } from "../user/user.types";
+import { TUserLogin_RB, TUserSignup_RB } from "./auth.types";
+import ApiResponse from "../../../globals/helpers/apiResponse";
+import { USER_ROLES, UserDocument } from "../user/user.types";
 import userModel from "../user/user.model";
 import { BaseException } from "../../../globals/exceptions";
-import { authToken } from "../../../globals/utils/token";
-import { _1_WEEK } from "../../../globals/utils/token/token.constant";
+import { accessTokenUtility } from "../../../globals/utils/token";
+import { ACCESS_TOKEN_EXPIRY } from "../../../globals/utils/token/token.constant";
 
 export class AuthController {
-  /** logs in a user */
-  async login(req: Request<any, any, TUserLogin, any>, res: Response) {
-    let user: UserDocument;
-    try {
-      user = await userModel.login(req.body);
-    } catch (error: BaseException | Error | any) {
-      return ServerResponse.create(res).error(error);
-    }
-
-    const token = authToken.create({ _id: user._id, email: user.email });
-    const response = {
-      user,
-      auth: { token, expiresIn: _1_WEEK },
-    };
-    return ServerResponse.create(res).success("login successful", response);
-  }
-
   /** creates a new user */
-  async signup(req: Request<any, any, TUserSignup, any>, res: Response) {
+  async signup(req: Request<any, any, TUserSignup_RB, any>, res: Response) {
     let createdUser: UserDocument;
 
     try {
       createdUser = await userModel.createUserFromCredentials(req.body);
     } catch (error: any) {
-      return ServerResponse.create(res).error(error);
+      return ApiResponse.create(res).error(error);
     }
 
-    const token = authToken.create({
+    const token = accessTokenUtility.create({
       _id: createdUser._id,
       email: createdUser.email,
+      role: createdUser.role || USER_ROLES.USER,
     });
-    
+
     const response = {
       user: createdUser,
-      auth: { token, expiresIn: _1_WEEK },
+      auth: { token, expiresIn: ACCESS_TOKEN_EXPIRY + Date.now() },
     };
-    return ServerResponse.create(res).success("login successful", response);
+    return ApiResponse.create(res).success("signup successful", response);
+  }
+
+  /** login an disposer */
+  async disposerLogin(
+    req: Request<any, any, TUserLogin_RB, any>,
+    res: Response
+  ) {
+    let user: UserDocument;
+    try {
+      user = await userModel.disposerLogin(req.body);
+    } catch (error: BaseException | Error | any) {
+      return ApiResponse.create(res).error(error);
+    }
+
+    const token = accessTokenUtility.create({
+      _id: user._id,
+      email: user.email,
+      role: user.role || USER_ROLES.DISPOSER,
+    });
+
+    const response = {
+      user,
+      auth: { token, expiresIn: ACCESS_TOKEN_EXPIRY + Date.now() },
+    };
+    return ApiResponse.create(res).success("login successful", response);
+  }
+
+  /** login a user */
+  async login(req: Request<any, any, TUserLogin_RB, any>, res: Response) {
+    let user: UserDocument;
+    try {
+      user = await userModel.login(req.body);
+    } catch (error: BaseException | Error | any) {
+      return ApiResponse.create(res).error(error);
+    }
+
+    const token = accessTokenUtility.create({
+      _id: user._id,
+      email: user.email,
+      role: user.role || USER_ROLES.USER,
+    });
+
+    const response = {
+      user,
+      auth: { token, expiresIn: ACCESS_TOKEN_EXPIRY + Date.now() },
+    };
+    return ApiResponse.create(res).success("login successful", response);
+  }
+
+  /** sign in with google a user */
+  async signInWithGoogle(req: Request<any, any, any, any>, res: Response) {
+    return ApiResponse.create(res).success("google sign in");
+  }
+
+  /** generates new access token for user */
+  async refreshAccessToken(req: Request<any, any, any, any>, res: Response) {
+    return ApiResponse.create(res).success("google sign in");
+  }
+
+  /** resends account verificatiion mail */
+  async resendAccountVerificationMail(
+    req: Request<any, any, any, any>,
+    res: Response
+  ) {
+    return ApiResponse.create(res).success("resend verification mail");
+  }
+
+  /** verify a user account */
+  async verifyAccount(req: Request<any, any, any, any>, res: Response) {
+    return ApiResponse.create(res).success("verify account");
+  }
+
+  /** send forgot password mail */
+  async sendForgotPasswordMail(
+    req: Request<any, any, any, any>,
+    res: Response
+  ) {
+    return ApiResponse.create(res).success("forgot password email");
+  }
+
+  /** change password using token */
+  async changePasswordWithToken(
+    req: Request<any, any, any, any>,
+    res: Response
+  ) {
+    return ApiResponse.create(res).success("change password with token");
+  }
+
+  /** change password */
+  async changePassword(req: Request<any, any, any, any>, res: Response) {
+    return ApiResponse.create(res).success("change password");
+  }
+
+  /**deletes a user account */
+  async deleteAccount(req: Request<any, any, any, any>, res: Response) {
+    return ApiResponse.create(res).success("delete user account");
   }
 }
 

@@ -4,11 +4,13 @@ import {
   ServerException,
 } from "../../../globals/exceptions";
 import passwordUtility from "../../../globals/utils/password";
-import { TUserLogin, TUserSignup } from "../auth/auth.types";
+import { TUserLogin_RB, TUserSignup_RB } from "../auth/auth.types";
+import userHelpers from "./user.helpers";
 import userRepository from "./user.repository";
+import { USER_ROLES } from "./user.types";
 
 export class UserModel {
-  async createUserFromCredentials(userData: TUserSignup) {
+  async createUserFromCredentials(userData: TUserSignup_RB) {
     try {
       const userExists = await userRepository.findByEmail(userData.email);
       if (userExists) {
@@ -21,8 +23,7 @@ export class UserModel {
       };
 
       let createdUser = await userRepository.create(data);
-      delete createdUser.password;
-      return createdUser;
+      return userHelpers.filter(createdUser);
     } catch (error: any) {
       if (error instanceof BaseException) {
         throw error;
@@ -31,10 +32,12 @@ export class UserModel {
     }
   }
 
-  async login(userData: TUserLogin) {
+  async login(
+    userData: TUserLogin_RB,
+  ) {
     try {
       const user = await userRepository.findByEmail(userData.email);
-      if (!user) {
+      if (!user || user.role !== USER_ROLES.USER) {
         throw new BadRequestException("incorrect credentials");
       }
 
@@ -51,8 +54,36 @@ export class UserModel {
         throw new BadRequestException("incorrect credentials");
       }
 
-      delete user.password;
-      return user;
+      return userHelpers.filter(user);
+    } catch (error: Error | BaseException | any) {
+      if (error instanceof BaseException) {
+        throw error;
+      }
+      throw new ServerException(error.message);
+    }
+  }
+
+  async disposerLogin(userCredentials: TUserLogin_RB) {
+    try {
+      const user = await userRepository.findByEmail(userCredentials.email);
+      if (!user || user.role !== USER_ROLES.DISPOSER) {
+        throw new BadRequestException("incorrect credentials");
+      }
+
+      if (!user.password) {
+        throw new BadRequestException("incorrect login method selected");
+      }
+
+      let passwordMatch = await passwordUtility.compare(
+        userCredentials.password,
+        user.password
+      );
+
+      if (!passwordMatch) {
+        throw new BadRequestException("incorrect credentials");
+      }
+
+      return userHelpers.filter(user);
     } catch (error: Error | BaseException | any) {
       if (error instanceof BaseException) {
         throw error;
