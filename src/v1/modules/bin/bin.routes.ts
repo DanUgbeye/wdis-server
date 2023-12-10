@@ -21,7 +21,12 @@ export default class BinRouter implements RouterInterface {
 
   registerRoutes() {
     // get all bins route
-    this.router.get("/", binController.findAll);
+    this.router.get(
+      "/",
+      authMiddleware.verifyAccessToken,
+      authMiddleware.requireRole(USER_ROLES.DISPOSER),
+      binController.findAll
+    );
 
     // create bins route
     this.router.post(
@@ -33,7 +38,12 @@ export default class BinRouter implements RouterInterface {
     );
 
     // get bin route
-    this.router.get("/:id", binController.findById);
+    this.router.get(
+      "/:id",
+      authMiddleware.verifyAccessToken,
+      authMiddleware.requireRole(USER_ROLES.DISPOSER),
+      binController.findById
+    );
 
     // update bin route
     this.router.patch(
@@ -55,7 +65,6 @@ export default class BinRouter implements RouterInterface {
     // mark bin status as full route
     this.router.patch(
       "/:id/status/full",
-      // validateRequest(),
       authMiddleware.verifyAccessToken,
       authMiddleware.requireRole(USER_ROLES.DISPOSER),
       binController.markAsFull
@@ -64,7 +73,6 @@ export default class BinRouter implements RouterInterface {
     // mark bin status as empty route
     this.router.patch(
       "/:id/status/empty",
-      // validateRequest(),
       authMiddleware.verifyAccessToken,
       authMiddleware.requireRole(USER_ROLES.DISPOSER),
       binController.markAsEmpty
@@ -73,7 +81,6 @@ export default class BinRouter implements RouterInterface {
     // mark bin status as full as ongoing route
     this.router.patch(
       "/:id/status/ongoing",
-      // validateRequest(),
       authMiddleware.verifyAccessToken,
       authMiddleware.requireRole(USER_ROLES.DISPOSER),
       binController.markAsOngoing
