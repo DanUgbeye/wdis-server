@@ -9,7 +9,26 @@ export class DisposalController {
    * get disposal data
    * @route GET .../disposal/:id
    */
-  async findById(req: Request<any, any, any, any>, res: Response) {
+  async getAll(req: Request<any, any, any, any>, res: Response) {
+    let disposal;
+
+    try {
+      disposal = await disposalModel.findAll();
+    } catch (error: any | Error | BaseException) {
+      return ApiResponse.create(res).error(error);
+    }
+
+    return ApiResponse.create(res).success(
+      "disposals found successfully",
+      disposal
+    );
+  }
+
+  /**
+   * get disposal data
+   * @route GET .../disposal/:id
+   */
+  async getById(req: Request<any, any, any, any>, res: Response) {
     const id = req.params.id as string;
     let disposal;
 
