@@ -9,6 +9,7 @@ import {
   DISPOSAL_STATUS,
   DisposalData,
   DisposalDocument,
+  DisposalStats,
 } from "./disposal.types";
 
 export class DisposalModel {
@@ -51,7 +52,7 @@ export class DisposalModel {
    */
   async getDisposalStats() {
     let result: DisposalDocument | null;
-    let stats = {
+    let stats: DisposalStats = {
       total: 0,
       completed: 0,
       ongoing: 0,

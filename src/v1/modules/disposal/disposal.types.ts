@@ -15,3 +15,9 @@ export interface DisposalData {
 }
 
 export interface DisposalDocument extends Document, DisposalData {}
+
+export type DisposalStats = {
+  total: number;
+  ongoing: number;
+  completed: number;
+};
