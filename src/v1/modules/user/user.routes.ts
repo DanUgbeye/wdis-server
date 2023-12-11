@@ -3,6 +3,7 @@ import userController from "./user.controller";
 import authMiddleware from "../auth/auth.middleware";
 import validateRequest from "../../../globals/middlewares/validator.middleware";
 import { RouterInterface } from "src/globals/types/router.types";
+import { USER_ROLES } from "./user.types";
 
 export default class UserRouter implements RouterInterface {
   static instance: UserRouter | null = null;
@@ -22,7 +23,6 @@ export default class UserRouter implements RouterInterface {
     // get user data route
     this.router.get(
       "/profile",
-      // validateRequest(),
       authMiddleware.verifyAccessToken,
       userController.getProfile
     );
@@ -32,6 +32,7 @@ export default class UserRouter implements RouterInterface {
       "/:id",
       // validateRequest(),
       authMiddleware.verifyAccessToken,
+      authMiddleware.requireRole([USER_ROLES.DISPOSER]),
       userController.findById
     );
 
