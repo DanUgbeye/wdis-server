@@ -22,7 +22,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [serverConfig.CLIENT_BASE_URL],
+    origin: [serverConfig.CLIENT_BASE_URL, "http://localhost:3000"],
     credentials: true,
   },
 });
@@ -40,6 +40,7 @@ io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
       socket.disconnect();
     }
 
+    console.log(`disposer ${disposerId} logged in`);
     DisposerStore.set(disposerId, socket.id);
 
     // send report status of all bins to disposer
@@ -56,7 +57,16 @@ io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
 
   // user login
   socket.on(SOCKET_EVENTS.USER_LOGIN, (userId: string) => {
+    console.log(`user ${userId} logged in`);
     UserStore.set(userId, socket.id);
+
+    Array.from(ReportStore.keys()).forEach((binId) => {
+      const totalReports = ReportStore.get(binId)?.length || 0;
+
+      socket
+        .to(socket.id)
+        .emit(SOCKET_EVENTS.BIN_REPORTS, { binId, totalReports });
+    });
   });
 
   // user reporting bin as full
@@ -89,6 +99,8 @@ io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
         totalReports = reporters.length;
       }
 
+      console.log(`bin ${binId} marked as full by user ${userId}`);
+
       // alert disposer
       Array.from(DisposerStore.values()).forEach((socketId) => {
         socket
@@ -106,6 +118,8 @@ io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
         socket.disconnect();
       }
 
+      console.log(`bin ${binId} marked for disposal by disposer ${disposerId}`);
+
       Array.from(UserStore.values()).forEach((socketId) => {
         socket.to(socketId).emit(SOCKET_EVENTS.BIN_DISPOSAL, binId);
       });
@@ -120,6 +134,8 @@ io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
         socket.disconnect();
       }
 
+      console.log(`bin ${binId} emptied by disposer ${disposerId}`);
+
       if (ReportStore.has(binId)) {
         ReportStore.delete(binId);
       }
@@ -132,6 +148,7 @@ io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
 
   socket.on(SOCKET_EVENTS.LOGOUT, (userId: string) => {
     if (typeof userId !== "string") return;
+    console.log(`user ${userId} logged out`);
 
     if (UserStore.has(userId)) {
       UserStore.delete(userId);
@@ -147,20 +164,22 @@ io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
   });
 
   socket.on(SOCKET_EVENTS.DISCONNECT, () => {
-    let entry = Array.from(UserStore.entries()).find(
+    let entry = Array.from(DisposerStore.entries()).find(
       (entry) => entry[1] === socket.id
     );
 
     if (entry) {
-      UserStore.delete(entry[0]);
+      console.log(`disposer ${entry[1]} disconnect`);
+      DisposerStore.delete(entry[0]);
       return;
     }
 
-    entry = Array.from(DisposerStore.entries()).find(
+    entry = Array.from(UserStore.entries()).find(
       (entry) => entry[1] === socket.id
     );
 
     if (entry) {
+      console.log(`user ${entry[1]} disconnect`);
       UserStore.delete(entry[0]);
       return;
     }
