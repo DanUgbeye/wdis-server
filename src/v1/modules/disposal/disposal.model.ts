@@ -9,6 +9,7 @@ import {
   DISPOSAL_STATUS,
   DisposalData,
   DisposalDocument,
+  DisposalStats,
 } from "./disposal.types";
 
 export class DisposalModel {
@@ -19,7 +20,7 @@ export class DisposalModel {
     let result: DisposalDocument[];
 
     try {
-      result = await disposalRepo.find();
+      result = await disposalRepo.find().sort({ disposedAt: -1 });
     } catch (err: any | Error) {
       throw new BadRequestException(err.message);
     }
@@ -51,7 +52,7 @@ export class DisposalModel {
    */
   async getDisposalStats() {
     let result: DisposalDocument | null;
-    let stats = {
+    let stats: DisposalStats = {
       total: 0,
       completed: 0,
       ongoing: 0,
@@ -80,7 +81,7 @@ export class DisposalModel {
   async findAllForBin(binId: string) {
     let results: DisposalDocument[];
     try {
-      results = await disposalRepo.find({ binId });
+      results = await disposalRepo.find({ binId }).sort({ disposedAt: -1 });
     } catch (err: any | Error) {
       throw new BadRequestException(err.message);
     }

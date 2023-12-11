@@ -3,6 +3,7 @@ import appController from "./app.controller";
 import authMiddleware from "../auth/auth.middleware";
 import validateRequest from "../../../globals/middlewares/validator.middleware";
 import { RouterInterface } from "src/globals/types/router.types";
+import { USER_ROLES } from "../user/user.types";
 
 export default class AppRouter implements RouterInterface {
   private static instance: AppRouter | null = null;
@@ -11,7 +12,7 @@ export default class AppRouter implements RouterInterface {
 
   constructor() {
     if (AppRouter.instance) {
-      throw new Error("App Instance already exists");
+      throw new Error("App Router Instance already exists");
     }
 
     this.router = Router();
@@ -22,10 +23,10 @@ export default class AppRouter implements RouterInterface {
     // get all apps route
     this.router.get(
       "/stats",
+      authMiddleware.authenticateUser,
+      authMiddleware.requireRole([USER_ROLES.DISPOSER]),
       appController.getStats
     );
-
-    
   }
 
   /** single instance of AppRouter */
