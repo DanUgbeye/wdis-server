@@ -162,7 +162,7 @@ export class DisposalModel {
     }
 
     try {
-      bin = await binRepo.findById(id);
+      bin = await binRepo.findById(result.binId);
     } catch (err: any | Error) {
       throw new BadRequestException(err.message || "Bin not found");
     }
