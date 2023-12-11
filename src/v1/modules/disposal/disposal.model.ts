@@ -13,6 +13,21 @@ import {
 
 export class DisposalModel {
   /**
+   * finds all disposals
+   */
+  async findAll() {
+    let result: DisposalDocument[];
+
+    try {
+      result = await disposalRepo.find();
+    } catch (err: any | Error) {
+      throw new BadRequestException(err.message);
+    }
+
+    return result;
+  }
+
+  /**
    * finds a disposal using id
    * @param id disposal id
    */

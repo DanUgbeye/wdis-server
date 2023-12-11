@@ -24,7 +24,14 @@ export default class DisposalRouter implements RouterInterface {
     this.router.get(
       "/",
       authMiddleware.verifyAccessToken,
-      disposalController.findById
+      disposalController.getAll
+    );
+
+    // get disposal by id
+    this.router.get(
+      "/",
+      authMiddleware.verifyAccessToken,
+      disposalController.getById
     );
 
     // get disposal route
