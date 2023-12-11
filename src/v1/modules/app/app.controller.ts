@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import ApiResponse from "../../../globals/helpers/apiResponse";
-import { BadRequestException, BaseException } from "src/globals/exceptions";
+import { BaseException } from "src/globals/exceptions";
 import disposalModel from "../disposal/disposal.model";
 import binRepo from "../bin/bin.schema";
 import { AppStats } from "./app.types";
