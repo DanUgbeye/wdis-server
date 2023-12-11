@@ -4,6 +4,7 @@ import app from "./app";
 import serverConfig from "./globals/config/server.config";
 import { USER_ROLES, UserDocument } from "./v1/modules/user/user.types";
 import userRepository from "./v1/modules/user/user.repository";
+import { DisposerStore, ReportStore, UserStore } from "./socket-store";
 
 const SOCKET_EVENTS = {
   REPORT_BIN_FULL: "BIN.REPORT_FULL",
@@ -12,7 +13,9 @@ const SOCKET_EVENTS = {
   BIN_EMPTY: "BIN.ON_EMPTY",
   DISPOSER_LOGIN: "DISPOSER_LOGIN",
   USER_LOGIN: "USER_LOGIN",
+  LOGOUT: "LOGOUT",
   DISCONNECT: "disconnect",
+  CONNECTION: "connection",
 } as const;
 
 const server = http.createServer(app);
@@ -24,11 +27,7 @@ const io = new Server(server, {
   },
 });
 
-const DisposerStore = new Map<string, string>();
-const UserStore = new Map<string, string>();
-const ReportStore = new Map<string, string[]>();
-
-io.on("connection", (socket) => {
+io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
   // disposer login
   socket.on(SOCKET_EVENTS.DISPOSER_LOGIN, async (disposerId: string) => {
     let user: UserDocument | null;
@@ -114,21 +113,26 @@ io.on("connection", (socket) => {
   );
 
   // disposer marking bin as empty
-  socket.on(SOCKET_EVENTS.BIN_EMPTY, async (userId: string, binId: string) => {
-    if (!DisposerStore.has(userId)) {
-      socket.disconnect();
+  socket.on(
+    SOCKET_EVENTS.BIN_EMPTY,
+    async (disposerId: string, binId: string) => {
+      if (!DisposerStore.has(disposerId)) {
+        socket.disconnect();
+      }
+
+      if (ReportStore.has(binId)) {
+        ReportStore.delete(binId);
+      }
+
+      Array.from(UserStore.values()).forEach((socketId) => {
+        socket.to(socketId).emit(SOCKET_EVENTS.BIN_EMPTY, binId);
+      });
     }
+  );
 
-    if (ReportStore.has(binId)) {
-      ReportStore.delete(binId);
-    }
+  socket.on(SOCKET_EVENTS.LOGOUT, (userId: string) => {
+    if (typeof userId !== "string") return;
 
-    Array.from(UserStore.values()).forEach((socketId) => {
-      socket.to(socketId).emit(SOCKET_EVENTS.BIN_EMPTY, binId);
-    });
-  });
-
-  socket.on("disconnect", (userId: string) => {
     if (UserStore.has(userId)) {
       UserStore.delete(userId);
     }
@@ -139,6 +143,26 @@ io.on("connection", (socket) => {
 
     if (DisposerStore.has(userId)) {
       DisposerStore.delete(userId);
+    }
+  });
+
+  socket.on(SOCKET_EVENTS.DISCONNECT, () => {
+    let entry = Array.from(UserStore.entries()).find(
+      (entry) => entry[1] === socket.id
+    );
+
+    if (entry) {
+      UserStore.delete(entry[0]);
+      return;
+    }
+
+    entry = Array.from(DisposerStore.entries()).find(
+      (entry) => entry[1] === socket.id
+    );
+
+    if (entry) {
+      UserStore.delete(entry[0]);
+      return;
     }
   });
 });

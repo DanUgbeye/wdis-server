@@ -37,11 +37,10 @@ export default class BinRouter implements RouterInterface {
       binController.create
     );
 
-    // get bin route
+    // get bin by id route
     this.router.get(
       "/:id",
       authMiddleware.verifyAccessToken,
-      authMiddleware.requireRole([USER_ROLES.DISPOSER]),
       binController.findById
     );
 

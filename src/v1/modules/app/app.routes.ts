@@ -23,7 +23,7 @@ export default class AppRouter implements RouterInterface {
     // get all apps route
     this.router.get(
       "/stats",
-      authMiddleware.authenticateUser,
+      authMiddleware.verifyAccessToken,
       authMiddleware.requireRole([USER_ROLES.DISPOSER]),
       appController.getStats
     );

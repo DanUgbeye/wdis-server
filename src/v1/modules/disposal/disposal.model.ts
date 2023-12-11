@@ -51,7 +51,6 @@ export class DisposalModel {
    * get disposal stats
    */
   async getDisposalStats() {
-    let result: DisposalDocument | null;
     let stats: DisposalStats = {
       total: 0,
       completed: 0,
