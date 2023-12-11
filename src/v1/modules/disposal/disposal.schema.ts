@@ -13,7 +13,7 @@ const disposalSchema = new mongoose.Schema<DisposalDocument>({
   },
   disposedAt: {
     type: Date,
-    default: new Date(),
+    default: () => new Date(),
   },
 });
 
