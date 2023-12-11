@@ -10,7 +10,6 @@ const binSchema = new mongoose.Schema<BinDocument>(
     location: {
       required: true,
       type: String,
-      unique: true,
     },
     status: {
       required: true,
