@@ -147,22 +147,21 @@ export class DisposalModel {
    * @param id disposal id to delete
    */
   async delete(id: string) {
-    let result: DisposalDocument | null;
+    let disposal: DisposalDocument | null;
     let bin: BinDocument | null;
 
     try {
-      result = await disposalRepo.findById(id);
-      // result = await disposalRepo.findByIdAndDelete(id);
+      disposal = await disposalRepo.findById(id);
     } catch (err: any | Error) {
       throw new BadRequestException(err.message || "Failed to delete disposal");
     }
 
-    if (!result) {
+    if (!disposal) {
       throw new NotFoundException("Disposal not found");
     }
 
     try {
-      bin = await binRepo.findById(result.binId);
+      bin = await binRepo.findById(disposal.binId);
     } catch (err: any | Error) {
       throw new BadRequestException(err.message || "Bin not found");
     }
@@ -171,10 +170,13 @@ export class DisposalModel {
       throw new NotFoundException("Bin not found");
     }
 
-    await result.deleteOne();
-    // result = await disposalRepo.findByIdAndDelete(id);
+    await disposal.deleteOne();
+    // disposal = await disposalRepo.findByIdAndDelete(id);
 
-    if (bin.status === BIN_STATUS.IN_DISPOSAL) {
+    if (
+      disposal.status === DISPOSAL_STATUS.ONGOING &&
+      bin.status === BIN_STATUS.IN_DISPOSAL
+    ) {
       try {
         await bin.updateOne({
           status: BIN_STATUS.FULL,
@@ -184,7 +186,7 @@ export class DisposalModel {
       }
     }
 
-    return result;
+    return disposal;
   }
 }
 
