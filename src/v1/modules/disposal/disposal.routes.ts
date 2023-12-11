@@ -21,17 +21,25 @@ export default class DisposalRouter implements RouterInterface {
 
   registerRoutes() {
     // get all disposals route
-    this.router.get("/", disposalController.findById);
+    this.router.get(
+      "/",
+      authMiddleware.verifyAccessToken,
+      disposalController.findById
+    );
 
     // get disposal route
-    this.router.get("/stats", disposalController.getStats);
+    this.router.get(
+      "/stats",
+      authMiddleware.verifyAccessToken,
+      disposalController.getStats
+    );
 
     // update disposal route
     this.router.patch(
       "/:id",
       // validateRequest(),
       authMiddleware.verifyAccessToken,
-      authMiddleware.requireRole(USER_ROLES.DISPOSER),
+      authMiddleware.requireRole([USER_ROLES.DISPOSER]),
       disposalController.update
     );
 
@@ -39,7 +47,7 @@ export default class DisposalRouter implements RouterInterface {
     this.router.delete(
       "/:id",
       authMiddleware.verifyAccessToken,
-      authMiddleware.requireRole(USER_ROLES.DISPOSER),
+      authMiddleware.requireRole([USER_ROLES.DISPOSER]),
       disposalController.delete
     );
   }

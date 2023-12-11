@@ -79,7 +79,7 @@ export class AuthMiddleware {
 
   async requirePermission(permission: AppPermissions) {}
 
-  requireRole(role: UserRole) {
+  requireRole(role: UserRole[]) {
     return function (req: Request, res: Response, next: NextFunction) {
       const user = req.user as UserDocument | undefined;
 
@@ -87,7 +87,7 @@ export class AuthMiddleware {
         return next(new AuthorizationException("user not found"));
       }
 
-      if (user.role !== role && user.role !== USER_ROLES.ADMIN) {
+      if (!role.includes(user.role) && user.role !== USER_ROLES.ADMIN) {
         return next(new AuthorizationException());
       }
 
