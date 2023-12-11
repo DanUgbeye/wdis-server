@@ -2,6 +2,8 @@ import {
   BadRequestException,
   NotFoundException,
 } from "../../../globals/exceptions";
+import binRepo from "../bin/bin.schema";
+import { BIN_STATUS, BinDocument } from "../bin/bin.types";
 import disposalRepo from "./disposal.schema";
 import {
   DISPOSAL_STATUS,
@@ -146,15 +148,40 @@ export class DisposalModel {
    */
   async delete(id: string) {
     let result: DisposalDocument | null;
+    let bin: BinDocument | null;
 
     try {
-      result = await disposalRepo.findByIdAndDelete(id);
+      result = await disposalRepo.findById(id);
+      // result = await disposalRepo.findByIdAndDelete(id);
     } catch (err: any | Error) {
       throw new BadRequestException(err.message || "Failed to delete disposal");
     }
 
     if (!result) {
       throw new NotFoundException("Disposal not found");
+    }
+
+    try {
+      bin = await binRepo.findById(id);
+    } catch (err: any | Error) {
+      throw new BadRequestException(err.message || "Bin not found");
+    }
+
+    if (!bin) {
+      throw new NotFoundException("Bin not found");
+    }
+
+    await result.deleteOne();
+    // result = await disposalRepo.findByIdAndDelete(id);
+
+    if (bin.status === BIN_STATUS.IN_DISPOSAL) {
+      try {
+        await bin.updateOne({
+          status: BIN_STATUS.FULL,
+        });
+      } catch (error) {
+        console.log("failed to update bin after deleting an ongoingdisposal");
+      }
     }
 
     return result;
