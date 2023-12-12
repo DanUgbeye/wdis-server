@@ -13,6 +13,8 @@ const SOCKET_EVENTS = {
   BIN_EMPTY: "BIN.ON_EMPTY",
   DISPOSER_LOGIN: "DISPOSER_LOGIN",
   USER_LOGIN: "USER_LOGIN",
+  SYNC_REPORTS: "SYNC_REPORTS",
+  SYNC_REPORTS_REQUEST: "SYNC_REPORTS_REQUEST",
   LOGOUT: "LOGOUT",
   DISCONNECT: "disconnect",
   CONNECTION: "connection",
@@ -22,36 +24,34 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [serverConfig.CLIENT_BASE_URL, "http://localhost:3000"],
+    origin: [
+      serverConfig.CLIENT_BASE_URL,
+      "http://localhost:3000",
+      "localhost:3000",
+    ],
     credentials: true,
   },
 });
 
 io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
   // disposer login
-  socket.on(SOCKET_EVENTS.DISPOSER_LOGIN, async (disposerId: string) => {
-    let user: UserDocument | null;
-    try {
-      user = await userRepository.findById(disposerId);
-      if (!user || user.role !== USER_ROLES.DISPOSER) {
-        socket.disconnect();
-      }
-    } catch (err) {
-      socket.disconnect();
-    }
-
+  socket.on(SOCKET_EVENTS.DISPOSER_LOGIN, (disposerId: string) => {
     console.log(`disposer ${disposerId} logged in`);
     DisposerStore.set(disposerId, socket.id);
+  });
+
+  socket.on(SOCKET_EVENTS.SYNC_REPORTS_REQUEST, (disposerId: string) => {
+    console.log("recieved sync event from ", disposerId);
+
+    let reportObject: Record<string, number> = {};
+    Array.from(ReportStore.entries()).forEach((entry) => {
+      reportObject[entry[0]] = entry[1].length;
+    });
 
     // send report status of all bins to disposer
-    Array.from(ReportStore.keys()).forEach((binId) => {
-      const totalReports = ReportStore.get(binId)?.length || 0;
-
-      Array.from(DisposerStore.values()).forEach((socketId) => {
-        socket
-          .to(socketId)
-          .emit(SOCKET_EVENTS.BIN_REPORTS, { binId, totalReports });
-      });
+    console.log(reportObject);
+    Array.from(DisposerStore.values()).forEach((socketId) => {
+      socket.to(socketId).emit(SOCKET_EVENTS.SYNC_REPORTS, reportObject);
     });
   });
 
@@ -59,14 +59,6 @@ io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
   socket.on(SOCKET_EVENTS.USER_LOGIN, (userId: string) => {
     console.log(`user ${userId} logged in`);
     UserStore.set(userId, socket.id);
-
-    Array.from(ReportStore.keys()).forEach((binId) => {
-      const totalReports = ReportStore.get(binId)?.length || 0;
-
-      socket
-        .to(socket.id)
-        .emit(SOCKET_EVENTS.BIN_REPORTS, { binId, totalReports });
-    });
   });
 
   // user reporting bin as full
@@ -86,15 +78,14 @@ io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
         ReportStore.set(binId, reporters);
         ++totalReports;
       } else {
-        // if previous reports for bin
+        // if previous reports for bin exist
         let reporters = ReportStore.get(binId)!;
 
         // if user has already reported bin
         if (!reporters.includes(userId)) {
-          reporters.push(userId);
-        } else {
           return;
         }
+        reporters.push(userId);
 
         totalReports = reporters.length;
       }
@@ -105,7 +96,7 @@ io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
       Array.from(DisposerStore.values()).forEach((socketId) => {
         socket
           .to(socketId)
-          .emit(SOCKET_EVENTS.BIN_REPORTS, { binId, totalReports });
+          .emit(SOCKET_EVENTS.BIN_REPORTS, binId, totalReports);
       });
     }
   );
@@ -119,6 +110,10 @@ io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
       }
 
       console.log(`bin ${binId} marked for disposal by disposer ${disposerId}`);
+
+      if (ReportStore.has(binId)) {
+        ReportStore.delete(binId);
+      }
 
       Array.from(UserStore.values()).forEach((socketId) => {
         socket.to(socketId).emit(SOCKET_EVENTS.BIN_DISPOSAL, binId);
@@ -136,10 +131,6 @@ io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
 
       console.log(`bin ${binId} emptied by disposer ${disposerId}`);
 
-      if (ReportStore.has(binId)) {
-        ReportStore.delete(binId);
-      }
-
       Array.from(UserStore.values()).forEach((socketId) => {
         socket.to(socketId).emit(SOCKET_EVENTS.BIN_EMPTY, binId);
       });
@@ -148,19 +139,18 @@ io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
 
   socket.on(SOCKET_EVENTS.LOGOUT, (userId: string) => {
     if (typeof userId !== "string") return;
-    console.log(`user ${userId} logged out`);
 
     if (UserStore.has(userId)) {
       UserStore.delete(userId);
+      console.log(`user ${userId} logged out`);
     }
 
     if (DisposerStore.has(userId)) {
       DisposerStore.delete(userId);
+      console.log(`disposer ${userId} logged out`);
     }
 
-    if (DisposerStore.has(userId)) {
-      DisposerStore.delete(userId);
-    }
+    socket.disconnect();
   });
 
   socket.on(SOCKET_EVENTS.DISCONNECT, () => {
@@ -169,7 +159,7 @@ io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
     );
 
     if (entry) {
-      console.log(`disposer ${entry[1]} disconnect`);
+      console.log(`disposer ${entry[0]} disconnect`);
       DisposerStore.delete(entry[0]);
       return;
     }
@@ -179,7 +169,7 @@ io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
     );
 
     if (entry) {
-      console.log(`user ${entry[1]} disconnect`);
+      console.log(`user ${entry[0]} disconnect`);
       UserStore.delete(entry[0]);
       return;
     }
